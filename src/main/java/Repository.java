@@ -4,9 +4,15 @@ import java.util.concurrent.TimeUnit;
 
 class Repository {
 
+    Observable<String> stringObservable;
+    private CachedRequest<String> obs;
+
     Observable<String> getUsersFirstName() {
-        return Observable.fromArray("George", "Will", "Brad", "Amitabh")
-                .zipWith(Observable.interval(500, TimeUnit.MILLISECONDS), (item, interval) -> item);
+        if (stringObservable == null)
+        stringObservable = Observable.fromArray("George", "Will", "Brad", "Amitabh")
+                .zipWith(Observable.interval(10, TimeUnit.MILLISECONDS), (item, interval) -> item);
+        obs = new CachedRequest(stringObservable, 50, TimeUnit.MILLISECONDS);
+        return obs.getCachedObservable();
     }
 
     Observable<String> getUsersLastName() {
@@ -21,15 +27,16 @@ class Repository {
     }
 
     Observable<String> getNetworkData() {
-        return Observable.just("NetworkData")
+        return Observable.fromArray("SomeOtherData", "NetworkData")
                 .map(s -> {
                     //int a = 9/0;
                     return s;
                 })
-                .zipWith(Observable.interval(300, TimeUnit.MILLISECONDS), (item, interval) -> item);
+                .zipWith(Observable.interval(1000, TimeUnit.MILLISECONDS), (item, interval) -> item);
     }
 
     void saveDataToDisk(String s) {
         // save to the disk
+        System.out.println(s);
     }
 }
